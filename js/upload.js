@@ -377,11 +377,17 @@
             var X1;
             var Y1;
             function mousemove(){
-            	$(".img_mask").on("mousemove",function(){
+            	$(".img_mask").on("mousemove",function(e){
+            		e = window.event || e ;
             		if(move) {
 	            		var $img = $("#img_info img");
-		            	var Tx=(window.event.x - X1);
-		            	var Ty=(window.event.y - Y1);
+	            		if(navigator.appName=='Netscape'){
+	            			var Tx=(e.pageX - X1);
+		            		var Ty=(e.pageY - Y1);
+	            		}else{
+	            			var Tx=(window.event.x - X1);
+		            		var Ty=(window.event.y - Y1);
+	            		}
 		            	$(".img_info img").css({
 							"top":Ty+"px",
 							"left":Tx+'px'
@@ -390,10 +396,17 @@
             	});
             }
             function mousedown(){
-            	$("#img_info img").on("mousedown",function(){
-            		X1 = window.event.x-parseInt($(this).css('left'));
-					Y1 = window.event.y-parseInt($(this).css('top'));
+            	$("#img_info img").on("mousedown",function(e){
+            		e = window.event || e ;
+            		if(navigator.appName=='Netscape'){
+            			X1 = e.pageX-parseInt($(this).css('left'));
+						Y1 = e.pageY-parseInt($(this).css('top'));
+            		}else{
+            			X1 = e.x-parseInt($(this).css('left'));
+						Y1 = e.y-parseInt($(this).css('top'));
+            		}
 					move = 1;
+//					console.log("111");
             	});
 				
             }
@@ -402,9 +415,15 @@
 					move = 0;
             	});
             }
-            function dragstart() {
-            	$("#img_info img").on("dragstart",function(){
-					window.event.returnValue = false;
+            var dragstart = function() {
+            	$("#img_info img").on("dragstart",function(e){
+            		e = window.event || e;
+            		if(window.event){
+            			window.event.returnValue = false;
+            		}else{
+            			e.preventDefault();//for firefox
+            		}
+					
             	});
 			}
             //鼠标滚动事件
@@ -413,32 +432,38 @@
 				e = e || window.event;
 				
 				if(e.wheelDelta) { //IE/Opera/Chrome
-					if(e.wheelDelta>0){
-						//向上滚动
-						imgScale+=0.2;
+					direction(e.wheelDelta);
+				} else if(e.detail) { //Firefox
+					direction(-e.detail);
+				}
+			}
+            
+            //滚动方向
+            function direction(roll){
+            	if(roll>0){
+					//向上滚动
+					imgScale+=0.2;
+					var imgTransform = "translate(-50%,-50%) scale(" + imgScale + "," + imgScale + ")";
+					$("#img_info img").css({
+						"transform":imgTransform,
+						"-moz-transform":imgTransform,
+						"opacity":"1"
+					});
+				}else{
+					//向下滚动
+					if(imgScale>0.5){
+						imgScale-=0.2;
 						var imgTransform = "translate(-50%,-50%) scale(" + imgScale + "," + imgScale + ")";
 						$("#img_info img").css({
 							"transform":imgTransform,
+							"-moz-transform":imgTransform,
 							"opacity":"1"
 						});
 					}else{
-						//向下滚动
-						
-						if(imgScale>0.5){
-							imgScale-=0.2;
-							var imgTransform = "translate(-50%,-50%) scale(" + imgScale + "," + imgScale + ")";
-							$("#img_info img").css({
-								"transform":imgTransform,
-								"opacity":"1"
-							});
-						}else{
-							//alert("已经到最小了");
-						}
+						//alert("已经到最小了");
 					}
-				} else if(e.detail) { //Firefox
-					alert(e.detail);
 				}
-			}
+            }
 
             $btns.on( 'click', 'span', function() {
                 var index = $(this).index(),
