@@ -365,13 +365,10 @@
 		        	$(".img_mask").remove();
 		        	imgScale = 1;
 		        });
-		        
-		        $("#img_info img").mouseover(function(){
-		        	mousemove();
-					mousedown();
-					mouseup();
-					dragstart();
-				});
+	        	mousemove();
+				mousedown();
+				mouseup();
+				dragstart();
             });
             var move = 0;
             var X1;
@@ -406,7 +403,6 @@
 						Y1 = e.y-parseInt($(this).css('top'));
             		}
 					move = 1;
-//					console.log("111");
             	});
 				
             }
